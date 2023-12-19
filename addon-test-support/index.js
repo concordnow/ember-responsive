@@ -12,6 +12,8 @@ export function setBreakpoint(breakpoint) {
     if (breakpointName === 'auto') {
       media.set('_mocked', false);
       return;
+    } else {
+      media.set('_mocked', true);
     }
 
     if (Object.keys(breakpoints).indexOf(breakpointName) === -1) {
@@ -19,9 +21,14 @@ export function setBreakpoint(breakpoint) {
     }
   }
 
-  run(() => {
-    media.matches = breakpointArray;
-    media._triggerMediaChanged();
-  });
-  return settled();
+  return Promise.all([
+    new Promise((resolve) =>
+      run(() => {
+        media.set('_mockedBreakpoint', breakpointArray);
+        media._triggerMediaChanged();
+        resolve();
+      })
+    ),
+    settled(),
+  ]);
 }

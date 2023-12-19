@@ -79,10 +79,8 @@ import { dependentKeyCompat } from '@ember/object/compat';
 * @extends   Ember.Object
 */
 export default class MediaService extends Service.extend(Evented) {
-  // Ember only sets Ember.testing when tests are starting
-  // eslint-disable-next-line ember/no-ember-testing-in-module-scope
-  _mocked = Ember.testing;
-  _mockedBreakpoint = 'desktop';
+  _mocked = false;
+  _mockedBreakpoint = ['desktop'];
 
   /**
   * @property  _matches
@@ -97,11 +95,7 @@ export default class MediaService extends Service.extend(Evented) {
   * @type      Array
   */
   get matches() {
-    if (this._matches) {
-      return this._matches
-    }
-
-    return (Ember.testing && this._mocked) ? [this._mockedBreakpoint] : [];
+    return this.get('_mocked') ? this.get('_mockedBreakpoint') : (this._matches ?? []);
   }
 
   set matches(value) {
@@ -212,11 +206,6 @@ export default class MediaService extends Service.extend(Evented) {
   * @method  match
   */
   match(name, query) {
-    // see https://github.com/ember-cli/eslint-plugin-ember/pull/272
-    if (Ember.testing && this._mocked) {
-      return;
-    }
-
     const mql = this.mql;
     const matcher = mql(query);
 
